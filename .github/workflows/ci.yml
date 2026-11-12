@@ -30,14 +30,14 @@ jobs:
         env:
           CI: 'true'
       - uses: actions/upload-pages-artifact@v3
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/claude/magical-ramanujan-e2h78i'
         with:
           path: dist
 
   deploy:
     # Publishes the build to GitHub Pages. In the repository settings choose
     # Pages -> Build and deployment -> Source: GitHub Actions (one time).
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/claude/magical-ramanujan-e2h78i' && github.event_name != 'pull_request'
     needs: test
     runs-on: ubuntu-latest
     permissions:
