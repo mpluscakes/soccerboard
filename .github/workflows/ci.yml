@@ -2,7 +2,7 @@ name: CI and deploy
 
 on:
   push:
-    branches: [main]
+    branches: [claude/magical-ramanujan-e2h78i]
   pull_request:
   workflow_dispatch:
 
