@@ -1,0 +1,304 @@
+{
+ "name": "06-7v7-l2-defend",
+ "level": 2,
+ "board": {
+  "schemaVersion": 1,
+  "setup": {
+   "pitch": {
+    "preset": "7v7",
+    "length": 50,
+    "width": 35,
+    "goalWidth": 5,
+    "keeperArea": {
+     "x": -25,
+     "y": -9,
+     "w": 9,
+     "h": 18
+    },
+    "offside": false
+   },
+   "teams": [
+    {
+     "id": "A",
+     "name": "Blue",
+     "color": "#2563eb",
+     "attacksDir": 1
+    },
+    {
+     "id": "B",
+     "name": "Red",
+     "color": "#dc2626",
+     "attacksDir": -1
+    }
+   ],
+   "players": [
+    {
+     "id": "A1",
+     "teamId": "A",
+     "number": 1,
+     "role": "GK",
+     "home": {
+      "x": -0.92,
+      "y": 0
+     }
+    },
+    {
+     "id": "A2",
+     "teamId": "A",
+     "number": 2,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": -0.35000000000000003
+     }
+    },
+    {
+     "id": "A3",
+     "teamId": "A",
+     "number": 3,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": 0.35000000000000003
+     }
+    },
+    {
+     "id": "A4",
+     "teamId": "A",
+     "number": 4,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": -0.6000000000000001
+     }
+    },
+    {
+     "id": "A5",
+     "teamId": "A",
+     "number": 5,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": 0
+     }
+    },
+    {
+     "id": "A6",
+     "teamId": "A",
+     "number": 6,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": 0.6000000000000001
+     }
+    },
+    {
+     "id": "A7",
+     "teamId": "A",
+     "number": 7,
+     "role": "FWD",
+     "home": {
+      "x": 0.7,
+      "y": 0
+     }
+    },
+    {
+     "id": "B1",
+     "teamId": "B",
+     "number": 1,
+     "role": "GK",
+     "home": {
+      "x": -0.92,
+      "y": 0
+     }
+    },
+    {
+     "id": "B2",
+     "teamId": "B",
+     "number": 2,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": -0.35000000000000003
+     }
+    },
+    {
+     "id": "B3",
+     "teamId": "B",
+     "number": 3,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": 0.35000000000000003
+     }
+    },
+    {
+     "id": "B4",
+     "teamId": "B",
+     "number": 4,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": -0.6000000000000001
+     }
+    },
+    {
+     "id": "B5",
+     "teamId": "B",
+     "number": 5,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": 0
+     }
+    },
+    {
+     "id": "B6",
+     "teamId": "B",
+     "number": 6,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": 0.6000000000000001
+     }
+    },
+    {
+     "id": "B7",
+     "teamId": "B",
+     "number": 7,
+     "role": "FWD",
+     "home": {
+      "x": 0.7,
+      "y": 0
+     }
+    }
+   ],
+   "formationIds": {
+    "A": "2-3-1",
+    "B": "2-3-1"
+   }
+  },
+  "snapshot": {
+   "players": {
+    "A1": {
+     "pos": {
+      "x": -24.5,
+      "y": 1.94
+     },
+     "pinned": false
+    },
+    "A2": {
+     "pos": {
+      "x": -16.18,
+      "y": -3.79
+     },
+     "pinned": false
+    },
+    "A3": {
+     "pos": {
+      "x": -19.45,
+      "y": 3.77
+     },
+     "pinned": false
+    },
+    "A4": {
+     "pos": {
+      "x": -8.67,
+      "y": -12.68
+     },
+     "pinned": false
+    },
+    "A5": {
+     "pos": {
+      "x": -10.89,
+      "y": 2.56
+     },
+     "pinned": false
+    },
+    "A6": {
+     "pos": {
+      "x": -11.14,
+      "y": 12.58
+     },
+     "pinned": false
+    },
+    "A7": {
+     "pos": {
+      "x": -3.9,
+      "y": 0.58
+     },
+     "pinned": false
+    },
+    "B1": {
+     "pos": {
+      "x": 23.26,
+      "y": -1.13
+     },
+     "pinned": false
+    },
+    "B2": {
+     "pos": {
+      "x": 19.51,
+      "y": 5.54
+     },
+     "pinned": false
+    },
+    "B3": {
+     "pos": {
+      "x": 16.8,
+      "y": -3.33
+     },
+     "pinned": false
+    },
+    "B4": {
+     "pos": {
+      "x": 12.28,
+      "y": 13.01
+     },
+     "pinned": false
+    },
+    "B5": {
+     "pos": {
+      "x": 10.78,
+      "y": 1.06
+     },
+     "pinned": false
+    },
+    "B6": {
+     "pos": {
+      "x": 12.55,
+      "y": -8
+     },
+     "pinned": false
+    },
+    "B7": {
+     "pos": {
+      "x": 4.23,
+      "y": -1.71
+     },
+     "pinned": false
+    }
+   },
+   "ball": {
+    "kind": "held",
+    "carrierId": "B6"
+   }
+  },
+  "view": {
+   "viewport": {
+    "x": -27,
+    "y": -19.5,
+    "w": 54,
+    "h": 39
+   },
+   "youId": "A4",
+   "levelId": 2,
+   "perspective": "both",
+   "autoMove": true,
+   "paused": false,
+   "textMode": "kid",
+   "glideSpeed": 6,
+   "glyphs": false
+  }
+ }
+}

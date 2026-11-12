@@ -1,0 +1,122 @@
+{
+ "name": "04-2v1-corner",
+ "level": 1,
+ "board": {
+  "schemaVersion": 1,
+  "setup": {
+   "pitch": {
+    "preset": "4v4",
+    "length": 25,
+    "width": 18,
+    "goalWidth": 3,
+    "keeperArea": null,
+    "offside": false
+   },
+   "teams": [
+    {
+     "id": "A",
+     "name": "Blue",
+     "color": "#2563eb",
+     "attacksDir": 1
+    },
+    {
+     "id": "B",
+     "name": "Red",
+     "color": "#dc2626",
+     "attacksDir": -1
+    }
+   ],
+   "players": [
+    {
+     "id": "A1",
+     "teamId": "A",
+     "number": 1,
+     "role": "DEF",
+     "home": {
+      "x": -0.4,
+      "y": 0
+     }
+    },
+    {
+     "id": "A2",
+     "teamId": "A",
+     "number": 2,
+     "role": "FWD",
+     "home": {
+      "x": 0.5,
+      "y": 0
+     }
+    },
+    {
+     "id": "B1",
+     "teamId": "B",
+     "number": 1,
+     "role": "MID",
+     "home": {
+      "x": 0.2,
+      "y": 0
+     }
+    }
+   ],
+   "formationIds": {
+    "A": "1-1",
+    "B": "1"
+   },
+   "activeArea": {
+    "x": 2,
+    "y": -9,
+    "w": 10.5,
+    "h": 9
+   }
+  },
+  "snapshot": {
+   "players": {
+    "A1": {
+     "pos": {
+      "x": 2.5,
+      "y": -0.5
+     },
+     "pinned": false
+    },
+    "A2": {
+     "pos": {
+      "x": 2.5,
+      "y": -0.5
+     },
+     "pinned": false
+    },
+    "B1": {
+     "pos": {
+      "x": 5,
+      "y": -0.5
+     },
+     "pinned": false
+    }
+   },
+   "ball": {
+    "kind": "held",
+    "carrierId": "A2",
+    "dir": {
+     "x": 1,
+     "y": 0
+    }
+   }
+  },
+  "view": {
+   "viewport": {
+    "x": -14,
+    "y": -10.5,
+    "w": 28,
+    "h": 21
+   },
+   "youId": "A1",
+   "levelId": 1,
+   "perspective": "both",
+   "autoMove": true,
+   "paused": false,
+   "textMode": "kid",
+   "glideSpeed": 6,
+   "glyphs": false
+  }
+ }
+}

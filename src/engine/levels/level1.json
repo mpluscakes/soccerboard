@@ -1,0 +1,21 @@
+{
+  "id": 1,
+  "name": "First steps",
+  "moveCost": 0.004,
+  "hysteresis": 0.05,
+  "supporters": 1,
+  "goalSideGap": 2,
+  "markOneToOne": false,
+  "spaceDistFactor": 0.15,
+  "weights": {
+    "carrier": {},
+    "keeper": { "keeperArc": 3 },
+    "supporter": { "passLane": 1, "passDistance": 0.8, "spacing": 0.6, "forward": 0.1 },
+    "runner": { "forward": 1, "passLane": 0.4, "spacing": 0.5 },
+    "shape": { "spacing": 0.5 },
+    "presser": { "pressBall": 2 },
+    "marker": { "goalSide": 1.2, "spacing": 0.5 },
+    "chaser": { "getBall": 2 },
+    "hold": { "spacing": 0.5 }
+  }
+}

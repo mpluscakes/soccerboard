@@ -1,0 +1,23 @@
+{
+  "id": 2,
+  "name": "Team shape",
+  "moveCost": 0.004,
+  "hysteresis": 0.05,
+  "supporters": 2,
+  "goalSideGap": 3,
+  "markOneToOne": true,
+  "spaceDistFactor": 0.15,
+  "weights": {
+    "carrier": {},
+    "keeper": { "keeperArc": 3 },
+    "supporter": { "passLane": 1, "supportAngle": 0.8, "passDistance": 0.8, "spacing": 0.5, "forward": 0.2 },
+    "runner": { "forward": 1, "passLane": 0.5, "spacing": 0.4, "shape": 0.2 },
+    "width": { "width": 1.2, "passLane": 0.4, "spacing": 0.3, "forward": 0.3, "passDistance": 0.3 },
+    "shape": { "shape": 1, "spacing": 0.4 },
+    "presser": { "pressBall": 2 },
+    "cover": { "cover": 2 },
+    "marker": { "goalSide": 1.5, "spacing": 0.2 },
+    "chaser": { "getBall": 2 },
+    "hold": { "shape": 0.8, "spacing": 0.4 }
+  }
+}

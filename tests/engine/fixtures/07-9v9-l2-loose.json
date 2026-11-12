@@ -1,0 +1,375 @@
+{
+ "name": "07-9v9-l2-loose",
+ "level": 2,
+ "board": {
+  "schemaVersion": 1,
+  "setup": {
+   "pitch": {
+    "preset": "9v9",
+    "length": 65,
+    "width": 45,
+    "goalWidth": 5,
+    "keeperArea": {
+     "x": -32.5,
+     "y": -14,
+     "w": 12,
+     "h": 28
+    },
+    "offside": false
+   },
+   "teams": [
+    {
+     "id": "A",
+     "name": "Blue",
+     "color": "#2563eb",
+     "attacksDir": 1
+    },
+    {
+     "id": "B",
+     "name": "Red",
+     "color": "#dc2626",
+     "attacksDir": -1
+    }
+   ],
+   "players": [
+    {
+     "id": "A1",
+     "teamId": "A",
+     "number": 1,
+     "role": "GK",
+     "home": {
+      "x": -0.92,
+      "y": 0
+     }
+    },
+    {
+     "id": "A2",
+     "teamId": "A",
+     "number": 2,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": -0.6000000000000001
+     }
+    },
+    {
+     "id": "A3",
+     "teamId": "A",
+     "number": 3,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": 0
+     }
+    },
+    {
+     "id": "A4",
+     "teamId": "A",
+     "number": 4,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": 0.6000000000000001
+     }
+    },
+    {
+     "id": "A5",
+     "teamId": "A",
+     "number": 5,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": -0.6000000000000001
+     }
+    },
+    {
+     "id": "A6",
+     "teamId": "A",
+     "number": 6,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": 0
+     }
+    },
+    {
+     "id": "A7",
+     "teamId": "A",
+     "number": 7,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": 0.6000000000000001
+     }
+    },
+    {
+     "id": "A8",
+     "teamId": "A",
+     "number": 8,
+     "role": "FWD",
+     "home": {
+      "x": 0.7,
+      "y": -0.35000000000000003
+     }
+    },
+    {
+     "id": "A9",
+     "teamId": "A",
+     "number": 9,
+     "role": "FWD",
+     "home": {
+      "x": 0.7,
+      "y": 0.35000000000000003
+     }
+    },
+    {
+     "id": "B1",
+     "teamId": "B",
+     "number": 1,
+     "role": "GK",
+     "home": {
+      "x": -0.92,
+      "y": 0
+     }
+    },
+    {
+     "id": "B2",
+     "teamId": "B",
+     "number": 2,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": -0.6000000000000001
+     }
+    },
+    {
+     "id": "B3",
+     "teamId": "B",
+     "number": 3,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": 0
+     }
+    },
+    {
+     "id": "B4",
+     "teamId": "B",
+     "number": 4,
+     "role": "DEF",
+     "home": {
+      "x": -0.5,
+      "y": 0.6000000000000001
+     }
+    },
+    {
+     "id": "B5",
+     "teamId": "B",
+     "number": 5,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": -0.6000000000000001
+     }
+    },
+    {
+     "id": "B6",
+     "teamId": "B",
+     "number": 6,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": 0
+     }
+    },
+    {
+     "id": "B7",
+     "teamId": "B",
+     "number": 7,
+     "role": "MID",
+     "home": {
+      "x": 0.1,
+      "y": 0.6000000000000001
+     }
+    },
+    {
+     "id": "B8",
+     "teamId": "B",
+     "number": 8,
+     "role": "FWD",
+     "home": {
+      "x": 0.7,
+      "y": -0.35000000000000003
+     }
+    },
+    {
+     "id": "B9",
+     "teamId": "B",
+     "number": 9,
+     "role": "FWD",
+     "home": {
+      "x": 0.7,
+      "y": 0.35000000000000003
+     }
+    }
+   ],
+   "formationIds": {
+    "A": "3-3-2",
+    "B": "3-3-2"
+   }
+  },
+  "snapshot": {
+   "players": {
+    "A1": {
+     "pos": {
+      "x": -32,
+      "y": 3.31
+     },
+     "pinned": false
+    },
+    "A2": {
+     "pos": {
+      "x": -23.48,
+      "y": -10.08
+     },
+     "pinned": false
+    },
+    "A3": {
+     "pos": {
+      "x": -27.98,
+      "y": 2.85
+     },
+     "pinned": false
+    },
+    "A4": {
+     "pos": {
+      "x": -25.49,
+      "y": 9.92
+     },
+     "pinned": false
+    },
+    "A5": {
+     "pos": {
+      "x": -18.07,
+      "y": -9.63
+     },
+     "pinned": false
+    },
+    "A6": {
+     "pos": {
+      "x": -10.84,
+      "y": 0.25
+     },
+     "pinned": false
+    },
+    "A7": {
+     "pos": {
+      "x": -15.01,
+      "y": 13.88
+     },
+     "pinned": false
+    },
+    "A8": {
+     "pos": {
+      "x": -4.03,
+      "y": -5.66
+     },
+     "pinned": false
+    },
+    "A9": {
+     "pos": {
+      "x": -2.64,
+      "y": 7.22
+     },
+     "pinned": false
+    },
+    "B1": {
+     "pos": {
+      "x": 30.99,
+      "y": 2.82
+     },
+     "pinned": false
+    },
+    "B2": {
+     "pos": {
+      "x": 23.27,
+      "y": 13.35
+     },
+     "pinned": false
+    },
+    "B3": {
+     "pos": {
+      "x": 21.11,
+      "y": 1.99
+     },
+     "pinned": false
+    },
+    "B4": {
+     "pos": {
+      "x": 27.05,
+      "y": -14.64
+     },
+     "pinned": false
+    },
+    "B5": {
+     "pos": {
+      "x": 12.06,
+      "y": 17.35
+     },
+     "pinned": false
+    },
+    "B6": {
+     "pos": {
+      "x": 11.6,
+      "y": -0.36
+     },
+     "pinned": false
+    },
+    "B7": {
+     "pos": {
+      "x": 14.28,
+      "y": -16.64
+     },
+     "pinned": false
+    },
+    "B8": {
+     "pos": {
+      "x": 1.79,
+      "y": 8.85
+     },
+     "pinned": false
+    },
+    "B9": {
+     "pos": {
+      "x": 7.06,
+      "y": -11.2
+     },
+     "pinned": false
+    }
+   },
+   "ball": {
+    "kind": "loose",
+    "pos": {
+     "x": -12,
+     "y": 8
+    }
+   }
+  },
+  "view": {
+   "viewport": {
+    "x": -35.1,
+    "y": -25.1,
+    "w": 70.2,
+    "h": 50.2
+   },
+   "youId": "A5",
+   "levelId": 2,
+   "perspective": "both",
+   "autoMove": true,
+   "paused": false,
+   "textMode": "kid",
+   "glideSpeed": 6,
+   "glyphs": false
+  }
+ }
+}
