@@ -59,7 +59,7 @@ type Mode =
   | { kind: 'pending'; hit: string | null; startPx: Vec2; startWorld: Vec2; timer: ReturnType<typeof setTimeout> | undefined; pan: boolean }
   | { kind: 'player'; id: string; offset: Vec2; carrier: boolean }
   | { kind: 'ball'; offset: Vec2 }
-  | { kind: 'aim' }
+  | { kind: 'aim'; startPx: Vec2; moved: boolean }
   | { kind: 'pan'; lastPx: Vec2 }
   | { kind: 'frame'; start: Vec2 }
   | { kind: 'pinch'; d0: number; anchor: Vec2; w0: number; h0: number }
@@ -96,11 +96,19 @@ export class Gestures {
     return fromView(pxToView(px, this.proj(g)), g.orient);
   }
 
-  hitTargets(scale: number): HitTarget[] {
+  /**
+   * Under a finger a held ball is part of its carrier: touching it drags the
+   * carrier, and kicks are aimed with double-tap-and-hold instead. A mouse is
+   * precise enough to pick the ball off the carrier's edge.
+   */
+  hitTargets(scale: number, touch = false): HitTarget[] {
     const { snapshot } = this.store.getState().board;
     const pr = playerRadius(scale);
     const out: HitTarget[] = Object.entries(snapshot.players).map(([id, s]) => ({ id, pos: s.pos, r: hitRadius(pr, scale) }));
-    out.push({ id: BALL_ID, pos: ballDrawPos(snapshot, scale, Date.now()), r: ballHitRadius(scale) });
+    const ball = snapshot.ball;
+    // (So on touch the ball's area counts as the carrier's, not as a nearby defender's.)
+    const id = ball.kind === 'held' && touch ? ball.carrierId : BALL_ID;
+    out.push({ id, pos: ballDrawPos(snapshot, scale, Date.now()), r: ballHitRadius(scale, ball.kind === 'held') });
     return out;
   }
 
@@ -124,8 +132,26 @@ export class Gestures {
       /* pointer already gone */
     }
     const world = this.world(px, g);
-    const hit = s.ui.frameMode ? null : hitTest(world, this.hitTargets(this.proj(g).scale));
+    const hit = s.ui.frameMode ? null : hitTest(world, this.hitTargets(this.proj(g).scale, e.pointerType === 'touch'));
     const pan = e.button === 1 || e.button === 2 || this.spaceHeld;
+    // Double-tap the carrier and keep the second tap down: aim a kick by dragging.
+    const ball = s.board.snapshot.ball;
+    const last = this.lastTap;
+    if (
+      hit &&
+      !pan &&
+      e.button === 0 &&
+      ball.kind === 'held' &&
+      hit === ball.carrierId &&
+      last?.hit === hit &&
+      performance.now() - last.at <= DOUBLE_TAP_MS &&
+      dist(last.px, px) <= DOUBLE_TAP_PX
+    ) {
+      this.lastTap = null;
+      this.mode = { kind: 'aim', startPx: px, moved: false };
+      s.setUi({ aim: { from: ballPos(s.board.snapshot), to: world }, passFromId: null, selectedId: hit });
+      return;
+    }
     let timer: ReturnType<typeof setTimeout> | undefined;
     if (hit && hit !== BALL_ID && e.button === 0 && !pan) {
       timer = setTimeout(() => {
@@ -162,6 +188,7 @@ export class Gestures {
         s.dispatch({ type: 'MOVE_BALL', snap: false, to: { x: world.x + mode.offset.x, y: world.y + mode.offset.y } });
         break;
       case 'aim':
+        if (dist(px, mode.startPx) >= DRAG_THRESHOLD_PX) mode.moved = true;
         s.setUi({ aim: { from: ballPos(s.board.snapshot), to: world } });
         break;
       case 'pan': {
@@ -188,7 +215,7 @@ export class Gestures {
     if (m.hit === BALL_ID) {
       if (snapshot.ball.kind === 'held') {
         // Drag from a held ball = aim a kick.
-        this.mode = { kind: 'aim' };
+        this.mode = { kind: 'aim', startPx: m.startPx, moved: true };
       } else if (snapshot.ball.kind === 'loose') {
         s.beginGesture();
         this.mode = { kind: 'ball', offset: sub(snapshot.ball.pos, m.startWorld) };
@@ -245,7 +272,8 @@ export class Gestures {
       }
       case 'aim':
         s.setUi({ aim: null });
-        if (e.type !== 'pointercancel') s.dispatch({ type: 'KICK', to: world, t0: Date.now() }, { commit: true });
+        // Let go without dragging: no kick, it was just a double tap on the carrier.
+        if (e.type !== 'pointercancel' && m.moved) s.dispatch({ type: 'KICK', to: world, t0: Date.now() }, { commit: true });
         break;
       case 'frame': {
         this.onFrame(null);

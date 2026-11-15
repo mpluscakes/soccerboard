@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { act, board, centre, doubleTap, openFresh, pause, settled, tap, touchDrag } from './helpers';
+import { act, board, centre, doubleTap, openFresh, pause, settled, tap, touchDrag, touchEnd } from './helpers';
 
 test.beforeEach(async ({ page }) => {
   await openFresh(page);
@@ -61,14 +61,44 @@ test('double-tap the grass kicks the ball there', async ({ page }) => {
   expect(Math.hypot(ball.x - spot.x, ball.y - spot.y)).toBeLessThan(10);
 });
 
-test('the ball can be grabbed even with the carrier and a defender right on it', async ({ page }) => {
+test('a finger on the held ball drags the carrier; nothing is kicked or pinned', async ({ page }) => {
   await settled(page); // the presser is now standing next to the ball
   await pause(page);
+  const before = (await board(page)).snapshot.players.A5.pos;
   const ball = await centre(page, 'ball');
-  // A finger that lands a little off the ball still gets the ball, not a player.
-  await touchDrag(page, { x: ball.x + 5, y: ball.y - 5 }, { x: 60, y: ball.y + 40 });
+  await touchDrag(page, ball, { x: ball.x - 80, y: ball.y + 90 });
+  const after = (await board(page)).snapshot;
+  expect(after.ball).toMatchObject({ kind: 'held', carrierId: 'A5' });
+  expect(Math.hypot(after.players.A5.pos.x - before.x, after.players.A5.pos.y - before.y)).toBeGreaterThan(3);
+  expect(Object.values(after.players).some((p) => p.pinned)).toBe(false);
+});
+
+test('double-tap the carrier and hold: drag aims, letting go kicks; letting go without dragging does nothing', async ({ page }) => {
+  await pause(page);
+  const at = await centre(page, 'A5');
+  // No drag on the second tap: still the carrier's ball.
+  await doubleTap(page, at);
+  await page.waitForTimeout(400);
+  expect((await board(page)).snapshot.ball).toMatchObject({ kind: 'held', carrierId: 'A5' });
+  await expect(page.getByTestId('aim-line')).toHaveCount(0);
+  // A slow second touch is an ordinary drag of the carrier.
+  await page.waitForTimeout(500);
+  await touchDrag(page, at, { x: at.x + 30, y: at.y + 30 });
+  expect((await board(page)).snapshot.ball).toMatchObject({ kind: 'held', carrierId: 'A5' });
+
+  const now = await centre(page, 'A5');
+  const spot = { x: 60, y: now.y + 60 };
+  await tap(page, now);
+  await page.waitForTimeout(80);
+  await touchDrag(page, now, spot, { release: false });
+  await expect(page.getByTestId('aim-line')).toBeVisible();
+  // Holding still while aiming must not open the player menu.
+  await page.waitForTimeout(700);
+  await expect(page.getByTestId('player-menu')).toHaveCount(0);
+  await touchEnd(page);
   await expect(page.getByTestId('ball')).toHaveAttribute('data-state', 'loose');
-  expect(Object.values((await board(page)).snapshot.players).some((p) => p.pinned)).toBe(false);
+  const ball = await centre(page, 'ball');
+  expect(Math.hypot(ball.x - spot.x, ball.y - spot.y)).toBeLessThan(10);
 });
 
 test('a shot past the keeper is a goal: fireworks, then the ball goes back to the centre', async ({ page }) => {
