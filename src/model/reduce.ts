@@ -1,15 +1,21 @@
 import {
+  BLOCK_RADIUS,
   CONTROL_RADIUS,
+  SAVE_RADIUS,
+  SHOOT_AROUND,
   ballPos,
   boundsOf,
   clampToRect,
+  closestOnSegment,
   dist,
+  goalAt,
   norm,
+  shotEnd,
   sub,
   travelEnd,
 } from './geometry';
 import { defaultYou, fitViewport, initialSnapshot } from './presets';
-import type { Action, Ball, BoardState, Snapshot, Vec2 } from './types';
+import type { Action, Ball, BoardState, Setup, Snapshot, Vec2 } from './types';
 
 /** Nearest player within the control radius of a point, ties broken by id. */
 export function playerNear(snapshot: Snapshot, p: Vec2, radius = CONTROL_RADIUS): string | null {
@@ -31,6 +37,24 @@ function settleBall(snapshot: Snapshot, at: Vec2): Ball {
   const from = snapshot.players[id].pos;
   const d = dist(from, at);
   return d > 0.05 ? { kind: 'held', carrierId: id, dir: norm(sub(at, from)) } : { kind: 'held', carrierId: id };
+}
+
+/**
+ * A shot is stopped by the first opponent standing in its way: returns the
+ * point where they meet it, or null when the way to goal is clear.
+ */
+function blockedAt(setup: Setup, snapshot: Snapshot, from: Vec2, to: Vec2): Vec2 | null {
+  const kickerId = snapshot.ball.kind === 'held' ? snapshot.ball.carrierId : null;
+  const kicker = setup.players.find((p) => p.id === kickerId);
+  let best: { at: Vec2; t: number } | null = null;
+  for (const p of setup.players) {
+    const s = snapshot.players[p.id];
+    if (!s || p.id === kickerId || (kicker && p.teamId === kicker.teamId)) continue;
+    if (p.role !== 'GK' && dist(s.pos, from) < SHOOT_AROUND) continue;
+    const c = closestOnSegment(s.pos, from, to);
+    if (dist(s.pos, c.at) <= (p.role === 'GK' ? SAVE_RADIUS : BLOCK_RADIUS) && (!best || c.t < best.t)) best = c;
+  }
+  return best?.at ?? null;
 }
 
 /** Pure reducer: every change to a board goes through here. */
@@ -64,7 +88,9 @@ export function reduce(state: BoardState, a: Action): BoardState {
     }
     case 'KICK': {
       const from = ballPos(snapshot);
-      const to = clampToRect(a.to, bounds);
+      // Aimed at a goal: the ball goes into the net unless an opponent is in the way.
+      const shot = shotEnd(setup, a.to);
+      const to = shot ? (blockedAt(setup, snapshot, from, shot) ?? shot) : clampToRect(a.to, bounds);
       return withSnapshot({ ...snapshot, ball: { kind: 'travelling', from, to, t0: a.t0 ?? 0 } });
     }
     case 'BALL_ARRIVE': {
@@ -75,7 +101,10 @@ export function reduce(state: BoardState, a: Action): BoardState {
         // The receiver takes it facing the way the ball was travelling.
         return withSnapshot({ ...snapshot, ball: { kind: 'held', carrierId: b.toId, dir } });
       }
-      return withSnapshot({ ...snapshot, ball: settleBall(snapshot, travelEnd(snapshot, b)) });
+      const end = travelEnd(snapshot, b);
+      // In the net: it stays there (nobody picks it up) until play restarts.
+      if (goalAt(setup.pitch, end)) return withSnapshot({ ...snapshot, ball: { kind: 'loose', pos: end } });
+      return withSnapshot({ ...snapshot, ball: settleBall(snapshot, end) });
     }
     case 'PIN':
     case 'UNPIN': {

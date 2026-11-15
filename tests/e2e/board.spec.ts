@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { initialSnapshot } from '../../src/model/presets';
-import { act, board, centre, longPress, openFresh, pageMoved, pinch, scale, settled, tap, touchDrag, touchEnd } from './helpers';
+import { act, board, centre, chooseView, explain, hintOnly, inSettings, longPress, openFresh, pageMoved, pause, pinch, scale, setLevel, settled, tap, touchDrag, touchEnd } from './helpers';
 
 test.beforeEach(async ({ page }) => {
   await openFresh(page);
@@ -9,8 +9,7 @@ test.beforeEach(async ({ page }) => {
 test('1. opens as 5v5 with keepers at level 1; presets draw the listed pitch', async ({ page }) => {
   await expect(page.locator('[data-hit]:not([data-hit=ball])')).toHaveCount(10);
   await expect(page.locator('[data-role=GK]')).toHaveCount(2);
-  await expect(page.getByTestId('level')).toHaveValue('1');
-  await expect(page.getByTestId('mode-lesson')).toBeDisabled();
+  await inSettings(page, () => expect(page.getByTestId('level')).toHaveValue('1'));
   const outline = page.getByTestId('pitch-outline');
   await expect(outline).toHaveAttribute('data-length', '35');
   await expect(outline).toHaveAttribute('data-width', '25');
@@ -43,10 +42,8 @@ test('2. team sizes are independent: 2v1 loads', async ({ page }) => {
 });
 
 test('3. keeping play inside the view confines tokens and targets', async ({ page }) => {
-  await page.getByTestId('view-button').click();
-  await page.getByRole('menuitem', { name: 'Attacking half' }).click();
-  await page.getByTestId('view-button').click();
-  await page.getByRole('menuitem', { name: 'Keep play inside this view' }).click();
+  await chooseView(page, 'Attacking half');
+  await chooseView(page, 'Keep play inside this view');
   await expect(page.getByTestId('active-area')).toBeVisible();
   await settled(page);
   const state = await page.evaluate(() => {
@@ -64,7 +61,7 @@ test('4. exactly one You; their ghost, arrow and reason are always visible', asy
   await expect(page.getByTestId('you-tag')).toHaveCount(1);
   await expect(page.getByTestId('reason-you')).toBeVisible();
   // Hint-only keeps ghosts on screen.
-  await page.getByTestId('hint-only').click();
+  await hintOnly(page);
   await longPress(page, await centre(page, 'A4'));
   await page.getByTestId('menu-you').click();
   await expect(page.getByTestId('you-tag')).toHaveCount(1);
@@ -72,7 +69,7 @@ test('4. exactly one You; their ghost, arrow and reason are always visible', asy
   await expect(page.getByTestId('reason-you')).toHaveAttribute('data-player', 'A4');
   await expect(page.getByTestId('reason-you').locator('.reason-main')).not.toBeEmpty();
   // Even with the filter set to the other side, You is still explained.
-  await page.getByTestId('perspective').selectOption('defend');
+  await explain(page, 'defend');
   await expect(page.getByTestId('ghost-A4')).toBeVisible();
   await expect(page.getByTestId('reason-you')).toBeVisible();
 });
@@ -97,7 +94,7 @@ test('5. dragging the carrier moves the ball with them and the page does not scr
 });
 
 test('6. tap the carrier, then a teammate: the ball travels and they become the carrier', async ({ page }) => {
-  await page.getByTestId('pause').click();
+  await pause(page);
   await tap(page, await centre(page, 'A5'));
   await expect(page.getByTestId('pass-tip')).toBeVisible();
   await tap(page, await centre(page, 'A3'));
@@ -107,7 +104,7 @@ test('6. tap the carrier, then a teammate: the ball travels and they become the 
 });
 
 test('7. dragging from the ball and releasing on grass leaves a loose ball there', async ({ page }) => {
-  await page.getByTestId('pause').click();
+  await pause(page);
   const from = await centre(page, 'ball');
   const release = { x: 60, y: from.y + 30 }; // empty grass near the side line
   await touchDrag(page, from, release, { release: false });
@@ -121,7 +118,7 @@ test('7. dragging from the ball and releasing on grass leaves a loose ball there
 });
 
 test('7b. a loose ball can be dragged, and is picked up when dropped next to a player', async ({ page }) => {
-  await page.getByTestId('pause').click();
+  await pause(page);
   await act(page, { type: 'MOVE_BALL', to: { x: 0, y: 10 } });
   const target = await centre(page, 'B3');
   await touchDrag(page, await centre(page, 'ball'), { x: target.x + 10, y: target.y });
@@ -178,7 +175,7 @@ test('9. every token has a hit area of at least 44 x 44 px at every zoom', async
 });
 
 test('10. undo and redo step through moves; reset returns to the setup', async ({ page }) => {
-  await page.getByTestId('pause').click();
+  await pause(page);
   const start = await board(page);
   const snaps = [start.snapshot];
   for (const id of ['A2', 'A3', 'A4']) {
@@ -186,16 +183,18 @@ test('10. undo and redo step through moves; reset returns to the setup', async (
     await touchDrag(page, from, { x: from.x + 50, y: from.y - 40 });
     snaps.push((await board(page)).snapshot);
   }
-  await expect(page.getByTestId('redo')).toBeDisabled();
-  for (let i = 2; i >= 0; i--) {
-    await page.getByTestId('undo').click();
-    expect((await board(page)).snapshot).toEqual(snaps[i]);
-  }
-  await expect(page.getByTestId('undo')).toBeDisabled();
-  for (let i = 1; i <= 3; i++) {
-    await page.getByTestId('redo').click();
-    expect((await board(page)).snapshot).toEqual(snaps[i]);
-  }
+  await inSettings(page, async () => {
+    await expect(page.getByTestId('redo')).toBeDisabled();
+    for (let i = 2; i >= 0; i--) {
+      await page.getByTestId('undo').click();
+      expect((await board(page)).snapshot).toEqual(snaps[i]);
+    }
+    await expect(page.getByTestId('undo')).toBeDisabled();
+    for (let i = 1; i <= 3; i++) {
+      await page.getByTestId('redo').click();
+      expect((await board(page)).snapshot).toEqual(snaps[i]);
+    }
+  });
   await page.getByTestId('reset').click();
   expect((await board(page)).snapshot).toEqual(JSON.parse(JSON.stringify(initialSnapshot(start.setup))));
 });
@@ -204,7 +203,7 @@ test('auto-move glides everyone to their targets; hint-only shows ghosts and Sho
   await settled(page);
   await expect(page.locator('[data-testid^=ghost-]')).toHaveCount(0);
 
-  await page.getByTestId('hint-only').click();
+  await hintOnly(page);
   const carrier = await centre(page, 'A5');
   await touchDrag(page, carrier, { x: carrier.x - 100, y: carrier.y + 80 });
   await expect(page.locator('[data-testid^=ghost-]').first()).toBeVisible();
@@ -220,7 +219,7 @@ test('auto-move glides everyone to their targets; hint-only shows ghosts and Sho
 
 test('pause freezes players while targets keep updating', async ({ page }) => {
   await settled(page);
-  await page.getByTestId('pause').click();
+  await pause(page);
   const targetsBefore = await page.evaluate(() => JSON.stringify((window as any).__soccerboard.getState().engine.targets));
   const carrier = await centre(page, 'A5');
   await touchDrag(page, carrier, { x: carrier.x + 100, y: carrier.y + 150 });
@@ -234,14 +233,14 @@ test('22. the perspective filter hides the other team’s reasons and ghosts', a
   await page.getByTestId('setup-button').click();
   await page.getByTestId('you-select').selectOption('');
   await page.getByTestId('setup-close').click();
-  await page.getByTestId('hint-only').click();
+  await hintOnly(page);
   // Blue (A) has the ball. Shuffle things so both teams have somewhere to go.
   const carrier = await centre(page, 'A5');
   await touchDrag(page, carrier, { x: carrier.x + 90, y: carrier.y + 120 });
   await expect(page.locator('[data-testid^=ghost-B]').first()).toBeVisible();
   await expect(page.locator('[data-testid^=ghost-A]').first()).toBeVisible();
 
-  await page.getByTestId('perspective').selectOption('defend');
+  await explain(page, 'defend');
   await expect(page.locator('[data-testid^=ghost-A]')).toHaveCount(0);
   await expect(page.locator('[data-testid^=ghost-B]').first()).toBeVisible();
   await tap(page, await centre(page, 'A2'));
@@ -250,7 +249,7 @@ test('22. the perspective filter hides the other team’s reasons and ghosts', a
   await tap(page, await centre(page, 'B2'));
   await expect(page.getByTestId('reason-selected')).toHaveAttribute('data-player', 'B2');
 
-  await page.getByTestId('perspective').selectOption('attack');
+  await explain(page, 'attack');
   await expect(page.locator('[data-testid^=ghost-B]')).toHaveCount(0);
   await expect(page.locator('[data-testid^=ghost-A]').first()).toBeVisible();
   await expect(page.getByTestId('reason-hidden')).toBeVisible();
@@ -263,11 +262,11 @@ test('kid and coach words; level 2 adds width and cover', async ({ page }) => {
   await page.getByTestId('text-coach').click();
   await page.getByTestId('setup-close').click();
   await expect(page.getByTestId('reason-selected')).toContainText('First defender');
-  await page.getByTestId('level').selectOption('2');
+  await setLevel(page, '2');
   await page.waitForFunction(() => Object.values<any>((window as any).__soccerboard.getState().engine.reasons).some((r) => r.jobId === 'cover'));
 });
 
-test('pinch zooms the board, not the page; Fit resets', async ({ page }) => {
+test('pinch zooms the board, not the page; Whole pitch resets', async ({ page }) => {
   const before = (await board(page)).view.viewport;
   const box = (await page.getByTestId('board').boundingBox())!;
   await pinch(page, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 80, 260);
@@ -276,18 +275,17 @@ test('pinch zooms the board, not the page; Fit resets', async ({ page }) => {
   expect(await pageMoved(page)).toBe(false);
   // Zooming and panning change only the view.
   expect((await board(page)).snapshot.ball).toEqual((await board(page)).snapshot.ball);
-  await page.getByTestId('view-button').click();
-  await page.getByRole('menuitem', { name: 'Whole pitch' }).click();
+  await chooseView(page, 'Whole pitch');
   expect((await board(page)).view.viewport).toEqual(before);
 });
 
 test('24. closing and reopening restores the last board exactly', async ({ page }) => {
-  await page.getByTestId('pause').click();
+  await pause(page);
   const from = await centre(page, 'A3');
   await touchDrag(page, from, { x: from.x + 70, y: from.y - 90 });
   await longPress(page, await centre(page, 'B4'));
   await page.getByTestId('menu-you').click();
-  await page.getByTestId('level').selectOption('2');
+  await setLevel(page, '2');
   await page.waitForTimeout(900); // autosave is debounced 500 ms
   const saved = await board(page);
   await page.reload();

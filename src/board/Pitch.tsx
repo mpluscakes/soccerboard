@@ -1,12 +1,12 @@
 import { memo } from 'react';
-import { pitchRect } from '../model/geometry';
+import { goalDepth, pitchRect } from '../model/geometry';
 import { fitViewport } from '../model/presets';
 import type { PitchSpec, Rect, Setup } from '../model/types';
 
 const LINE = { stroke: '#f8fafc', strokeWidth: 2, fill: 'none', vectorEffect: 'non-scaling-stroke' as const };
 
 function Goal({ pitch, end }: { pitch: PitchSpec; end: 1 | -1 }) {
-  const depth = Math.max(0.8, pitch.length * 0.025);
+  const depth = goalDepth(pitch);
   const x = end === 1 ? pitch.length / 2 : -pitch.length / 2 - depth;
   return (
     <rect

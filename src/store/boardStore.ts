@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import type { EngineResult } from '../engine/types';
 import { initialSnapshot, makeSetup, newBoard, type SetupOptions } from '../model/presets';
 import { reduce } from '../model/reduce';
-import type { Action, BoardState, Vec2 } from '../model/types';
+import type { Action, BoardState, TeamId, Vec2 } from '../model/types';
+import { tutorialOff } from '../persist/prefs';
 import { History } from './history';
 
 export interface UiState {
@@ -20,6 +21,10 @@ export interface UiState {
   aim: { from: Vec2; to: Vec2 } | null;
   /** "Show me": glide to the current targets once, even when paused or hint-only. */
   showMe: boolean;
+  /** A goal was just scored: which team, and when (performance.now()). Drives the fireworks. */
+  goal: { teamId: TeamId; at: number } | null;
+  /** The first-run tutorial is on screen. */
+  tutorialOpen: boolean;
   /** Debug overlay: engine time per run. */
   debug: boolean;
   engineMs: number;
@@ -73,6 +78,8 @@ export const useBoard = create<BoardStore>((set, get) => {
       frameMode: false,
       aim: null,
       showMe: false,
+      goal: null,
+      tutorialOpen: !tutorialOff(),
       debug: false,
       engineMs: 0,
       engineCoarse: false,
@@ -92,7 +99,7 @@ export const useBoard = create<BoardStore>((set, get) => {
     undo() {
       const cur = get().board;
       const prev = history.undo(cur);
-      if (prev) set({ board: restore(cur, prev), engine: null, ...flags(), ui: { ...get().ui, passFromId: null, aim: null } });
+      if (prev) set({ board: restore(cur, prev), engine: null, ...flags(), ui: { ...get().ui, passFromId: null, aim: null, goal: null } });
     },
     redo() {
       const cur = get().board;
@@ -102,7 +109,7 @@ export const useBoard = create<BoardStore>((set, get) => {
     reset() {
       const { board } = get();
       get().dispatch({ type: 'LOAD_SNAPSHOT', snapshot: initialSnapshot(board.setup) }, { commit: true });
-      set({ ui: { ...get().ui, passFromId: null, selectedId: null, aim: null } });
+      set({ ui: { ...get().ui, passFromId: null, selectedId: null, aim: null, goal: null } });
     },
     startNewBoard(options) {
       history.clear();
@@ -111,7 +118,7 @@ export const useBoard = create<BoardStore>((set, get) => {
         board,
         engine: null,
         ...flags(),
-        ui: { ...get().ui, selectedId: null, passFromId: null, menu: null, aim: null, setupOpen: false, setupOptions: options },
+        ui: { ...get().ui, selectedId: null, passFromId: null, menu: null, aim: null, goal: null, setupOpen: false, setupOptions: options },
       });
     },
     loadBoard(board) {

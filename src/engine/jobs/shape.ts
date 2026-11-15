@@ -9,6 +9,6 @@ export const shape: JobRule = {
   minLevel: 1,
   priority: 9,
   assign: (_ctx, free) => free.map((p) => ({ playerId: p.id, jobId: 'shape' })),
-  anchor: (ctx, player) => (ctx.level.id >= 2 ? shapeHome(ctx, player) : null),
+  anchor: (ctx, player) => shapeHome(ctx, player),
   explain: (ctx, player) => (teamCtx(ctx, player).phase === 'defend' ? JOB_TEXT.shapeDefend : JOB_TEXT.shapeAttack),
 };

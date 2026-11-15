@@ -1,7 +1,7 @@
 import { CONTROL_RADIUS, ballPos, dist, sub, teamOf } from '../model/geometry';
 import type { Rect, Vec2 } from '../model/types';
 import type { BoardStoreApi } from '../store/boardStore';
-import { ballDrawPos, ballRadius, hitRadius, playerRadius } from './sizes';
+import { ballDrawPos, ballHitRadius, hitRadius, playerRadius } from './sizes';
 import {
   anchoredView,
   clampViewport,
@@ -17,6 +17,8 @@ import {
 
 export const DRAG_THRESHOLD_PX = 6; // a drag starts after 6 px so taps are not misread
 export const LONG_PRESS_MS = 500;
+export const DOUBLE_TAP_MS = 350; // two taps this close together, on the same thing, are a double tap
+export const DOUBLE_TAP_PX = 30;
 export const BALL_ID = '__ball__';
 
 export interface HitTarget {
@@ -26,13 +28,18 @@ export interface HitTarget {
   r: number;
 }
 
-/** The token under a point: the nearest centre among the hit areas that contain it. */
+/**
+ * The token under a point. Where hit areas overlap, the one whose centre is
+ * nearest wins, measured as a share of its own radius: so the ball, with its
+ * bigger area, can still be grabbed when players are standing right on it.
+ */
 export function hitTest(p: Vec2, targets: HitTarget[]): string | null {
   let best: string | null = null;
   let bestD = Infinity;
   for (const t of targets) {
-    const d = dist(p, t.pos);
-    if (d <= t.r && d < bestD) {
+    const raw = dist(p, t.pos);
+    const d = raw / t.r;
+    if (raw <= t.r && d < bestD) {
       best = t.id;
       bestD = d;
     }
@@ -68,6 +75,7 @@ export class Gestures {
   private touches = new Map<number, Vec2>();
   spaceHeld = false;
   private panEndedAt = -Infinity;
+  private lastTap: { hit: string | null; px: Vec2; at: number } | null = null;
   /** Rectangle being framed (metres), for the board to draw. */
   onFrame: (r: Rect | null) => void = () => undefined;
 
@@ -92,7 +100,7 @@ export class Gestures {
     const { snapshot } = this.store.getState().board;
     const pr = playerRadius(scale);
     const out: HitTarget[] = Object.entries(snapshot.players).map(([id, s]) => ({ id, pos: s.pos, r: hitRadius(pr, scale) }));
-    out.push({ id: BALL_ID, pos: ballDrawPos(snapshot, scale, Date.now()), r: hitRadius(ballRadius(scale), scale) });
+    out.push({ id: BALL_ID, pos: ballDrawPos(snapshot, scale, Date.now()), r: ballHitRadius(scale) });
     return out;
   }
 
@@ -220,7 +228,7 @@ export class Gestures {
     switch (m.kind) {
       case 'pending':
         clearTimeout(m.timer);
-        if (e.type !== 'pointercancel' && e.button !== 2) this.tap(m.hit);
+        if (e.type !== 'pointercancel' && e.button !== 2) this.tap(m.hit, m.startPx, m.startWorld);
         break;
       case 'ball':
         // Dropped near a player: it is theirs. Elsewhere it stays loose.
@@ -281,7 +289,14 @@ export class Gestures {
   }
 
   // ---- taps ----
-  private tap(hit: string | null): void {
+  private tap(hit: string | null, px: Vec2, world: Vec2): void {
+    const now = performance.now();
+    const last = this.lastTap;
+    this.lastTap = { hit, px, at: now };
+    if (last && last.hit === hit && now - last.at <= DOUBLE_TAP_MS && dist(last.px, px) <= DOUBLE_TAP_PX && this.doubleTap(hit, world)) {
+      this.lastTap = null;
+      return;
+    }
     const s = this.store.getState();
     const { setup, snapshot } = s.board;
     const carrierId = snapshot.ball.kind === 'held' ? snapshot.ball.carrierId : null;
@@ -303,6 +318,28 @@ export class Gestures {
     }
     if (id === carrierId) s.setUi({ selectedId: id, passFromId: from === id ? null : id });
     else s.setUi({ selectedId: id, passFromId: null });
+  }
+
+  /**
+   * Double tap a teammate of the carrier: pass to them. Double tap the grass:
+   * kick the ball there. Returns false when the double tap means nothing here.
+   */
+  private doubleTap(hit: string | null, world: Vec2): boolean {
+    const s = this.store.getState();
+    const { setup, snapshot } = s.board;
+    if (snapshot.ball.kind !== 'held' || s.ui.frameMode) return false;
+    const carrierId = snapshot.ball.carrierId;
+    if (hit === null) {
+      s.dispatch({ type: 'KICK', to: world, t0: Date.now() }, { commit: true });
+      s.setUi({ passFromId: null, selectedId: null });
+      return true;
+    }
+    const a = setup.players.find((p) => p.id === carrierId);
+    const b = setup.players.find((p) => p.id === hit);
+    if (!a || !b || a.id === b.id || a.teamId !== b.teamId) return false;
+    s.dispatch({ type: 'PASS', fromId: a.id, toId: b.id, t0: Date.now() }, { commit: true });
+    s.setUi({ passFromId: null, selectedId: b.id });
+    return true;
   }
 
   private openMenu(id: string, x: number, y: number): void {

@@ -4,6 +4,7 @@ import { formationLabel, formationsFor } from '../model/formations';
 import { PRESETS, PRESET_ORDER, type SetupOptions } from '../model/presets';
 import type { PitchPreset } from '../model/types';
 import { useBoard } from '../store/boardStore';
+import { PlayControls, useCompact } from './Toolbar';
 
 function NumberField(props: { label: string; value: number; min: number; max: number; step?: number; testid?: string; onChange: (n: number) => void }) {
   return (
@@ -34,6 +35,7 @@ export function SetupSheet() {
   const saved = useBoard((s) => s.ui.setupOptions);
   const { dispatch, setUi, startNewBoard } = useBoard.getState();
   const [o, setO] = useState<SetupOptions>(saved);
+  const compact = useCompact();
   if (!open) return null;
 
   const base = PRESETS[o.preset === 'custom' ? '5v5' : o.preset];
@@ -51,13 +53,15 @@ export function SetupSheet() {
   return (
     <>
       <div className="backdrop" onPointerDown={() => setUi({ setupOpen: false })} />
-      <section className="sheet" data-testid="setup-sheet" role="dialog" aria-label="Setup">
+      <section className="sheet" data-testid="setup-sheet" role="dialog" aria-label="Settings">
         <div className="sheet-head">
-          <h2>Setup</h2>
+          <h2>Settings</h2>
           <button data-testid="setup-close" onClick={() => setUi({ setupOpen: false })} aria-label="Close">
             ✕
           </button>
         </div>
+
+        {compact && <PlayControls onDone={() => setUi({ setupOpen: false })} />}
 
         <h3>New board</h3>
         <div className="chips" role="radiogroup" aria-label="Pitch">
@@ -161,6 +165,9 @@ export function SetupSheet() {
           <input type="checkbox" data-testid="debug-toggle" checked={debug} onChange={(e) => setUi({ debug: e.target.checked })} />
           <span>Show engine timing</span>
         </label>
+        <button data-testid="show-tutorial" onClick={() => setUi({ setupOpen: false, tutorialOpen: true })}>
+          Show the tutorial
+        </button>
         <p className="note">Names and boards are saved on this device only. Hold a player (or right-click) to name them.</p>
       </section>
     </>

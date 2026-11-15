@@ -95,6 +95,37 @@ export function goalSidePoint(ctx: EngineCtx, team: TeamCtx, mark: Vec2): Vec2 {
   return clampToRect(add(mark, scale(norm(sub(team.ownGoal, mark)), gap)), ctx.bounds);
 }
 
+/**
+ * Level 1 defending: everyone but the presser lines up side by side between
+ * the ball and our goal, like a wall, instead of queueing up behind each other.
+ * Each defender takes the slot on their own side, so nobody has to cross over.
+ */
+export function wallPoint(ctx: EngineCtx, player: PlayerInfo): Vec2 {
+  return memo(ctx, `wall:${player.id}`, () => wallPointRaw(ctx, player));
+}
+function wallPointRaw(ctx: EngineCtx, player: PlayerInfo): Vec2 {
+  const team = teamCtx(ctx, player);
+  const goal = team.ownGoal;
+  const ballDist = dist(ctx.ball, goal);
+  const u = norm(sub(goal, ctx.ball), { x: -team.dir, y: 0 });
+  const v = { x: -u.y, y: u.x };
+  const side = (p: PlayerInfo): number => (p.pos.x - ctx.ball.x) * v.x + (p.pos.y - ctx.ball.y) * v.y;
+  const line = team.players
+    .filter((p) => ctx.assignments[p.id]?.jobId === 'marker' && !ctx.assignments[p.id].refs?.mark)
+    .sort((a, b) => side(a) - side(b) || byId(a, b));
+  const n = line.length;
+  const i = Math.max(0, line.findIndex((p) => p.id === player.id));
+  // About a third of the way back to our goal, never closer to the ball than the gap.
+  const depth = Math.min(Math.max(ctx.level.goalSideGap, 0.35 * ballDist), 0.2 * ctx.pitch.length, Math.max(0, ballDist - 1));
+  const gap = n > 1 ? Math.min(1.2 * ctx.spaceDist, (0.8 * ctx.pitch.width) / (n - 1)) : 0;
+  // Big teams make two lines; close to goal the wall narrows so it stays goal-side of the ball.
+  const back = n > 4 && i % 2 === 1 ? 0.08 * ctx.pitch.length : 0;
+  const d = Math.min(depth + back, Math.max(0, ballDist - 1));
+  const reach = Math.sqrt(Math.max(0, 2 * ballDist * d - d * d)) * 0.8;
+  const off = clamp((i - (n - 1) / 2) * gap, -reach, reach);
+  return clampToRect({ x: ctx.ball.x + u.x * d + v.x * off, y: ctx.ball.y + u.y * d + v.y * off }, ctx.bounds);
+}
+
 /** Formation home shifted toward the ball (x by 0.3, y by 0.5 of the ball's offset). */
 export function shapeHome(ctx: EngineCtx, player: PlayerInfo): Vec2 {
   return memo(ctx, player.id, () => shapeHomeRaw(ctx, player));

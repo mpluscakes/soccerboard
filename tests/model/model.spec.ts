@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { formationsFor } from '../../src/model/formations';
-import { ballPos, dist, inRect } from '../../src/model/geometry';
+import { ballPos, dist, goalAt, inRect, shotEnd } from '../../src/model/geometry';
 import { migrate } from '../../src/model/migrate';
 import { PRESETS, initialSnapshot, makeSetup, newBoard } from '../../src/model/presets';
 import { reduce } from '../../src/model/reduce';
-import type { BoardState, PitchPreset } from '../../src/model/types';
+import type { BoardState, PitchPreset, Vec2 } from '../../src/model/types';
 import { History } from '../../src/store/history';
 
 describe('board and setup', () => {
@@ -174,5 +174,36 @@ describe('history and persistence', () => {
     expect(migrate(null)).toBeNull();
     expect(migrate({ schemaVersion: 99 })).toBeNull();
     expect(migrate({ schemaVersion: 1, setup: {} })).toBeNull();
+  });
+});
+
+describe('shots and goals', () => {
+  const start = newBoard({ preset: '5v5' });
+  const half = start.setup.pitch.length / 2;
+  const through = reduce(start, { type: 'MOVE_PLAYER', id: 'A5', to: { x: 10, y: -5 } });
+  const arrive = (b: BoardState): BoardState => reduce(b, { type: 'BALL_ARRIVE' });
+
+  it('a kick at the goal mouth with nobody in the way ends in the net', () => {
+    const b = arrive(reduce(through, { type: 'KICK', to: { x: half, y: -1.7 } }));
+    expect(b.snapshot.ball.kind).toBe('loose');
+    const pos = (b.snapshot.ball as { pos: Vec2 }).pos;
+    expect(goalAt(b.setup.pitch, pos)).toBe(1);
+    expect(pos.y).toBeCloseTo(-1.7);
+  });
+
+  it('an opponent on the line of the shot stops it and has the ball', () => {
+    const centre = reduce(start, { type: 'MOVE_PLAYER', id: 'A5', to: { x: 8, y: 0 } });
+    const b = arrive(reduce(centre, { type: 'KICK', to: { x: half + 2, y: 0 } }));
+    expect(b.snapshot.ball).toMatchObject({ kind: 'held' });
+    expect((b.snapshot.ball as { carrierId: string }).carrierId.startsWith('B')).toBe(true);
+  });
+
+  it('a kick wide of the goal, or at a goal outside the active area, is an ordinary kick', () => {
+    const wide = arrive(reduce(through, { type: 'KICK', to: { x: half + 3, y: -8 } }));
+    expect(goalAt(wide.setup.pitch, (wide.snapshot.ball as { pos: Vec2 }).pos)).toBeNull();
+    const boxed = reduce(start, { type: 'SET_ACTIVE_AREA', area: { x: -5, y: -10, w: 12, h: 20 } });
+    expect(shotEnd(boxed.setup, { x: half, y: 0 })).toBeNull();
+    expect(shotEnd(start.setup, { x: half, y: 0 })).not.toBeNull();
+    expect(shotEnd(start.setup, { x: -half - 1, y: 1 })!.x).toBeLessThan(-half);
   });
 });

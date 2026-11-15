@@ -6,7 +6,7 @@ import type { ScoringTerm } from '../types';
 /** Closeness to the player's formation home, shifted toward the ball. */
 export const shape: ScoringTerm = {
   id: 'shape',
-  minLevel: 2,
+  minLevel: 1,
   evaluate(ctx, player, p) {
     return closeness(dist(p, shapeHome(ctx, player)), 0.1 * ctx.pitch.length);
   },

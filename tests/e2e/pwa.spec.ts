@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { pause } from './helpers';
 
 test('23. installable: manifest, icons and a service worker', async ({ page, request }) => {
   await page.goto('/');
@@ -31,6 +32,6 @@ test('23. after the first load the app opens and works with the network off', as
   await expect(page.getByTestId('board')).toBeVisible();
   await expect(page.locator('[data-hit]')).toHaveCount(11);
   await page.waitForFunction(() => !!(window as any).__soccerboard?.getState().engine);
-  await page.getByTestId('pause').click();
+  await pause(page);
   await expect(page.getByTestId('pause')).toHaveAttribute('aria-pressed', 'true');
 });

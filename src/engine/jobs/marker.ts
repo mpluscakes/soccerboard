@@ -1,10 +1,10 @@
-import { add, dist, norm, scale, sub } from '../../model/geometry';
+import { dist } from '../../model/geometry';
 import { JOB_TEXT } from '../explain/templates';
-import { byId, goalSidePoint, teamCtx } from '../helpers';
+import { byId, goalSidePoint, teamCtx, wallPoint } from '../helpers';
 import type { Assignment, JobRule, PlayerInfo } from '../types';
 
 /**
- * Level 1: every other defender gets between the ball and our goal.
+ * Level 1: every other defender joins a wall between the ball and our goal.
  * Level 2+: defenders are matched 1-to-1 to the nearest free attacker.
  */
 export const marker: JobRule = {
@@ -40,10 +40,8 @@ export const marker: JobRule = {
     const team = teamCtx(ctx, player);
     const markId = ctx.assignments[player.id]?.refs?.mark;
     if (markId) return goalSidePoint(ctx, team, ctx.byId[markId].pos);
-    // No mark: drop straight back until we are goal-side of the ball.
-    const want = Math.max(0, dist(ctx.ball, team.ownGoal) - ctx.level.goalSideGap);
-    if (dist(player.pos, team.ownGoal) <= want) return null;
-    return add(team.ownGoal, scale(norm(sub(player.pos, team.ownGoal), { x: team.dir, y: 0 }), want));
+    // No mark: take a place in the wall between the ball and our goal.
+    return wallPoint(ctx, player);
   },
   allow(ctx, player, p) {
     if (ctx.assignments[player.id]?.refs?.mark) return true;

@@ -10,7 +10,7 @@ export const hold: JobRule = {
   minLevel: 1,
   priority: 8,
   assign: (_ctx, free) => free.map((p) => ({ playerId: p.id, jobId: 'hold' })),
-  anchor: (ctx, player) => (ctx.level.id >= 2 ? shapeHome(ctx, player) : null),
+  anchor: (ctx, player) => shapeHome(ctx, player),
   // Never end up nearer the ball than our chaser.
   allow(ctx, player, p) {
     const chaser = teamCtx(ctx, player).players.find((m) => ctx.assignments[m.id]?.jobId === 'chaser');

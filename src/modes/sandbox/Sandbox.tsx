@@ -3,6 +3,7 @@ import { PlayerMenu } from '../../ui/PlayerMenu';
 import { ReasonPanel } from '../../ui/ReasonPanel';
 import { SetupSheet } from '../../ui/SetupSheet';
 import { Toolbar } from '../../ui/Toolbar';
+import { Tutorial } from '../../ui/Tutorial';
 
 /** v1 mode: move the ball or the carrier, pass or kick, and everyone else reacts. */
 export function Sandbox() {
@@ -13,6 +14,7 @@ export function Sandbox() {
       <ReasonPanel />
       <PlayerMenu />
       <SetupSheet />
+      <Tutorial />
     </div>
   );
 }

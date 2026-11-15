@@ -117,32 +117,76 @@ input:focus-visible {
 .anchor {
   position: relative;
 }
-@media (max-width: 720px) {
-  /* Phones: short labels so the toolbar fits in two or three rows. */
-  .toolbar .wide {
+/* ---- phones: one slim row of icons; the rest lives in the settings sheet ---- */
+.toolbar.compact {
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px 8px;
+}
+.toolbar.compact button {
+  min-height: 36px;
+  padding: 0 10px;
+}
+.toolbar.compact .group.end {
+  gap: 6px;
+}
+.toolbar.compact .wide {
+  display: none;
+}
+.toolbar.compact .icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  padding: 0;
+}
+.toolbar.compact .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+}
+.level-chip {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: left;
+}
+@media (max-width: 380px) {
+  .level-name {
     display: none;
   }
-  .toolbar {
-    gap: 6px 8px;
-  }
-  .toolbar button,
-  .toolbar select {
-    padding: 0 10px;
-  }
-  .toolbar select {
-    max-width: 150px;
-  }
+}
+.sheet .seg {
+  display: flex;
+}
+.sheet .seg button {
+  border-radius: 0;
+  margin-left: -1px;
+}
+.sheet .seg button:first-child {
+  border-radius: 10px 0 0 10px;
+  margin-left: 0;
+}
+.sheet .seg button:last-child {
+  border-radius: 0 10px 10px 0;
 }
 @media (max-height: 520px) {
-  /* Phone on its side: one scrolling row so the pitch keeps its height. */
-  .toolbar {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
-  .toolbar button,
-  .toolbar select {
-    min-height: 40px;
-  }
+  /* Phone on its side: keep as much height as possible for the pitch. */
   .reasons {
     height: 52px;
     padding: 4px 8px;
@@ -160,13 +204,6 @@ input:focus-visible {
   .chip {
     width: 28px;
     height: 28px;
-  }
-  .view-menu {
-    position: fixed !important;
-    top: 56px !important;
-    right: 8px !important;
-    max-height: calc(100dvh - 64px);
-    overflow-y: auto;
   }
 }
 
@@ -431,4 +468,169 @@ input:focus-visible {
 }
 .lesson-stub a {
   color: var(--accent);
+}
+
+/* ---- goal fireworks ---- */
+.goal-party {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.goal-party canvas {
+  width: 100%;
+  height: 100%;
+}
+.goal-word {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(44px, 16vw, 110px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  -webkit-text-stroke: 2px #fff;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+  animation: goal-pop 2.8s ease-out both;
+}
+@keyframes goal-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0;
+  }
+  12% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 1;
+  }
+  20%,
+  80% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+/* ---- tutorial ---- */
+.tutorial {
+  position: fixed;
+  z-index: 11;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  padding: 14px 16px 10px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tutorial h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.tutorial p {
+  margin: 0;
+  min-height: 4.05em; /* three lines, so the buttons do not jump between steps */
+  color: var(--muted);
+}
+.tut-scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 32dvh;
+}
+.tut-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.tut-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.tut-dots span.on {
+  background: var(--accent);
+}
+.tut-actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+}
+.tut-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+button.link {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  text-decoration: underline;
+}
+.tut-slide {
+  animation: tut-slide 2.4s ease-in-out infinite;
+}
+.tut-pass {
+  animation: tut-pass 2.4s ease-in-out infinite;
+}
+.tut-tap {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tut-tap 2.4s ease-in-out infinite;
+}
+@keyframes tut-slide {
+  0%,
+  15% {
+    transform: translate(0, 0);
+  }
+  65%,
+  100% {
+    transform: translate(60px, -22px);
+  }
+}
+@keyframes tut-pass {
+  0%,
+  35% {
+    transform: translate(0, 0);
+  }
+  70%,
+  100% {
+    transform: translate(56px, -26px);
+  }
+}
+@keyframes tut-tap {
+  0%,
+  8%,
+  16%,
+  24%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  4%,
+  20% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tut-slide,
+  .tut-pass,
+  .tut-tap,
+  .goal-word {
+    animation: none;
+  }
 }
