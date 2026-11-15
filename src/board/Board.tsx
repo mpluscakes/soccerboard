@@ -189,7 +189,7 @@ export function Board() {
             vectorEffect="non-scaling-stroke"
           />
         )}
-        <Ball at={toView(ballDrawPos(snapshot, scale, now), orient)} r={br} hitR={ballHitRadius(scale)} state={snapshot.ball.kind} />
+        <Ball at={toView(ballDrawPos(snapshot, scale, now), orient)} r={br} hitR={ballHitRadius(scale, snapshot.ball.kind === 'held')} state={snapshot.ball.kind} />
         {frameView && (
           <rect
             x={frameView.x}

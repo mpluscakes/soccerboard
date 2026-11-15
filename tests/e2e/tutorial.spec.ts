@@ -12,7 +12,7 @@ test('first visit: the tutorial opens, walks through the basics and can be finis
   await open(page);
   await expect(page.getByTestId('tutorial')).toBeVisible();
   const titles: string[] = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
     titles.push((await page.getByTestId('tutorial-title').textContent()) ?? '');
     // It fits on a phone without scrolling.
     const box = (await page.getByTestId('tutorial').boundingBox())!;
@@ -20,7 +20,7 @@ test('first visit: the tutorial opens, walks through the basics and can be finis
     expect(box.y + box.height).toBeLessThanOrEqual(844);
     await page.getByTestId('tutorial-next').click();
   }
-  expect(new Set(titles).size).toBe(5);
+  expect(new Set(titles).size).toBe(6);
   await expect(page.getByTestId('tutorial')).toHaveCount(0);
   // Not ticked "don't show again": it comes back next time.
   await page.reload();

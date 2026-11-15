@@ -14,8 +14,9 @@ phone, a Fire tablet, an iPad and a laptop.
 | Move the ball carrier | Drag the carrier | Drag the carrier |
 | Move a loose ball | Drag the ball | Drag the ball |
 | Pass | Double-tap a teammate (or tap the carrier, then a teammate) | Double-click (or click, click) |
-| Kick to a spot | Double-tap the grass, or drag from the ball and let go | Same |
-| Shoot | Kick at the goal mouth. Aim for a corner: the keeper covers the middle | Same |
+| Kick to a spot | Double-tap the grass | Double-click the grass, or drag from the ball |
+| Aim a kick or shot | Double-tap the carrier, hold the second tap, drag and let go | Same, or drag from the ball |
+| Shoot | Aim at the goal mouth. Try a corner: the keeper covers the middle | Same |
 | Put a player somewhere | Drag them (they are pinned there) | Drag |
 | Player menu (You, pin, role, name) | Hold for half a second | Right-click |
 | Zoom and pan | Pinch, two-finger drag | Wheel, space-drag or right-drag |
@@ -107,9 +108,10 @@ These are deliberate; each was needed to make the board behave sensibly.
   play up the pitch instead of staying by their own goal, and the forward
   runner stays in passing range with an open lane rather than running as far
   as possible.
-- **The ball's hit area is 68 px across** and wins over a player's wherever the
-  two overlap in its favour, so it can be grabbed with a defender standing on
-  it.
+- **Under a finger a held ball belongs to its carrier**: touching it drags the
+  carrier. A separate ball target next to the carrier kept stealing that drag,
+  so a manual kick is aimed with double-tap-and-hold on the carrier instead. A
+  mouse can still drag from the ball. A loose ball has a 68 px hit area.
 - **Level 2 markers** only pick up attackers level with or ahead of the ball;
   the rest keep shape. Otherwise defenders chase the other team's back line.
 - **Jobs are sticky**: whoever had a job last tick counts as slightly closer,
@@ -117,8 +119,8 @@ These are deliberate; each was needed to make the board behave sensibly.
 - **A pass follows its receiver**, who counts as the carrier while the ball is
   in flight, so the team reacts to the pass straight away.
 - **A team of one has no keeper**, even with keepers on (so 2v1 works).
-- **Dragging a loose ball moves it; dragging a held ball aims a kick.** The
-  spec gives both gestures to "drag the ball".
+- **Dragging a loose ball moves it; a held ball's kick is aimed** (see the
+  table above). The spec gives both gestures to "drag the ball".
 - A `Reason` carries the job sentence and the term's detail line separately
   (`kid` + `kidDetail`), each 15 words or fewer.
 - Extra actions beyond the spec's list: `BALL_ARRIVE`, `SET_ROLE`,

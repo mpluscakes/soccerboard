@@ -70,6 +70,17 @@ const scenes: ReactNode[] = [
     </g>
     <Finger x={128} y={39} taps />
   </Scene>,
+  <Scene key="aim">
+    <rect x="186" y="30" width="14" height="50" fill="rgba(255,255,255,0.25)" stroke="#fff" strokeWidth="1.5" />
+    <Dot x={172} y={55} color={RED} label="1" />
+    <Dot x={70} y={62} color={BLUE} label="5" />
+    <BallDot x={82} y={62} />
+    <path d="M82 62 L186 36" stroke="#fff" strokeWidth="1.5" strokeDasharray="3 3" fill="none" />
+    <Finger x={70} y={66} taps />
+    <g className="tut-aim">
+      <Finger x={70} y={66} />
+    </g>
+  </Scene>,
   <Scene key="pin">
     <Dot x={50} y={40} color={BLUE} label="5" />
     <BallDot x={62} y={40} />
@@ -107,8 +118,12 @@ const STEPS: { title: string; text: string }[] = [
     text: 'Drag the player who has the ball. Everyone else finds their spot as you go.',
   },
   {
-    title: 'Pass and shoot',
-    text: 'Double-tap a teammate to pass. Double-tap the grass, or drag from the ball, to kick it there. Aim for a corner of the goal!',
+    title: 'Pass',
+    text: 'Double-tap a teammate to pass to them. Double-tap the grass to kick the ball to that spot.',
+  },
+  {
+    title: 'Aim a shot',
+    text: 'Double-tap the player with the ball and keep your finger down on the second tap. Drag to aim, let go to shoot. Try a corner of the goal!',
   },
   {
     title: 'Put a player somewhere',

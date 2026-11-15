@@ -30,6 +30,7 @@ export function ReasonPanel() {
   const engine = useBoard((s) => s.engine);
   const selectedId = useBoard((s) => s.ui.selectedId);
   const passFromId = useBoard((s) => s.ui.passFromId);
+  const aiming = useBoard((s) => !!s.ui.aim);
   const { setup, view } = board;
   const find = (id: string | null): Player | undefined => setup.players.find((p) => p.id === id);
   const you = find(view.youId);
@@ -38,7 +39,12 @@ export function ReasonPanel() {
 
   return (
     <footer className="reasons" data-testid="reasons">
-      {passFromId && (
+      {aiming && (
+        <div className="reason tip" data-testid="aim-tip">
+          <div className="reason-main">Drag to aim. Let go to kick.</div>
+        </div>
+      )}
+      {passFromId && !aiming && (
         <div className="reason tip" data-testid="pass-tip">
           <div className="reason-main">Now tap a teammate to pass.</div>
         </div>

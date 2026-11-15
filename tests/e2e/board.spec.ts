@@ -103,12 +103,15 @@ test('6. tap the carrier, then a teammate: the ball travels and they become the 
   expect((await board(page)).snapshot.ball).toMatchObject({ kind: 'held', carrierId: 'A3' });
 });
 
-test('7. dragging from the ball and releasing on grass leaves a loose ball there', async ({ page }) => {
+test('7. double-tap the carrier, hold and drag: releasing on grass leaves a loose ball there', async ({ page }) => {
   await pause(page);
-  const from = await centre(page, 'ball');
+  const from = await centre(page, 'A5');
   const release = { x: 60, y: from.y + 30 }; // empty grass near the side line
+  await tap(page, from);
+  await page.waitForTimeout(80);
   await touchDrag(page, from, release, { release: false });
   await expect(page.getByTestId('aim-line')).toBeVisible();
+  await expect(page.getByTestId('aim-tip')).toBeVisible();
   await touchEnd(page);
   await expect(page.getByTestId('ball')).toHaveAttribute('data-state', 'loose');
   const ball = await centre(page, 'ball');
