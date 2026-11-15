@@ -112,3 +112,25 @@ export async function settled(page: Page): Promise<void> {
 /** Did the page itself scroll or zoom? */
 export const pageMoved = (page: Page): Promise<boolean> =>
   page.evaluate(() => window.scrollX !== 0 || window.scrollY !== 0 || (window.visualViewport?.scale ?? 1) !== 1 || (window.visualViewport?.offsetTop ?? 0) !== 0);
+
+/** On a phone most controls live in the settings sheet: open it, use them, close it. */
+export async function inSettings(page: Page, fn: () => Promise<unknown>): Promise<void> {
+  await page.getByTestId('setup-button').click();
+  await fn();
+  await page.getByTestId('setup-close').click();
+}
+export const pause = (page: Page): Promise<void> => inSettings(page, () => page.getByTestId('pause').click());
+export const hintOnly = (page: Page): Promise<void> => inSettings(page, () => page.getByTestId('hint-only').click());
+export const setLevel = (page: Page, level: string): Promise<void> => inSettings(page, () => page.getByTestId('level').selectOption(level));
+export const explain = (page: Page, who: string): Promise<void> => inSettings(page, () => page.getByTestId('perspective').selectOption(who));
+/** Pick an entry of the View list in the settings sheet (choosing one closes the sheet). */
+export async function chooseView(page: Page, name: string): Promise<void> {
+  await page.getByTestId('setup-button').click();
+  await page.getByTestId('view-menu').getByRole('button', { name }).click();
+}
+
+export async function doubleTap(page: Page, at: Pt): Promise<void> {
+  await tap(page, at);
+  await page.waitForTimeout(80);
+  await tap(page, at);
+}

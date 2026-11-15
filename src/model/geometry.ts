@@ -101,3 +101,45 @@ export function travelDone(snapshot: Snapshot, now: number): boolean {
   if (b.kind !== 'travelling') return false;
   return ((now - b.t0) / 1000) * BALL_SPEED >= dist(b.from, travelEnd(snapshot, b));
 }
+
+// ---- goals ----
+// A shot is stopped by an opponent standing on its path: the keeper reaches
+// further than an outfield player, and a defender right next to the shooter
+// (the presser is always there) is shot around rather than into.
+export const SAVE_RADIUS = 1; // metres either side of the keeper
+export const BLOCK_RADIUS = 0.6; // metres either side of an outfield player
+export const SHOOT_AROUND = 2.5; // metres from the ball inside which defenders do not block
+
+/** How far the goal box sticks out behind the goal line (drawing and where a scored ball rests). */
+export const goalDepth = (pitch: PitchSpec): number => Math.max(0.8, pitch.length * 0.025);
+
+/** Which goal a point is in: 1 = the +x end, -1 = the -x end, null = neither. */
+export function goalAt(pitch: PitchSpec, p: Vec2): 1 | -1 | null {
+  if (Math.abs(p.y) > pitch.goalWidth / 2 || Math.abs(p.x) <= pitch.length / 2) return null;
+  return p.x > 0 ? 1 : -1;
+}
+
+/**
+ * A kick aimed at a goal mouth (on the line, just short of it or beyond it)
+ * is a shot: returns where the ball would rest in the net, else null.
+ */
+export function shotEnd(setup: Setup, to: Vec2): Vec2 | null {
+  const { pitch } = setup;
+  const half = pitch.length / 2;
+  if (Math.abs(to.y) > pitch.goalWidth / 2 || Math.abs(to.x) < half - 1) return null;
+  const end = to.x > 0 ? 1 : -1;
+  // The goal has to be in play (an active area can leave it out).
+  const b = boundsOf(setup);
+  const edge = end === 1 ? b.x + b.w : b.x;
+  if (Math.abs(edge - end * half) > 1e-6 || to.y < b.y || to.y > b.y + b.h) return null;
+  return { x: end * (half + goalDepth(pitch) / 2), y: to.y };
+}
+
+/** Point on the segment a-b closest to p, and how far along it is (0..1). */
+export function closestOnSegment(p: Vec2, a: Vec2, b: Vec2): { at: Vec2; t: number } {
+  const abx = b.x - a.x;
+  const aby = b.y - a.y;
+  const l2 = abx * abx + aby * aby;
+  const t = l2 < 1e-12 ? 0 : clamp(((p.x - a.x) * abx + (p.y - a.y) * aby) / l2, 0, 1);
+  return { at: { x: a.x + abx * t, y: a.y + aby * t }, t };
+}

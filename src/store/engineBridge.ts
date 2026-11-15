@@ -1,12 +1,14 @@
 import { computeTargets, getLevel } from '../engine';
 import type { EngineResult } from '../engine';
-import { travelDone } from '../model/geometry';
+import { goalAt, travelDone } from '../model/geometry';
 import type { Setup, Snapshot } from '../model/types';
 import type { BoardStoreApi } from './boardStore';
 import { glideStep } from './glide';
 
 const ENGINE_INTERVAL_MS = 66; // re-run at most ~15 times a second
 const BUDGET_MS = 8;
+/** How long the fireworks run after a goal before play restarts from the centre. */
+export const GOAL_PARTY_MS = 2800;
 
 /**
  * Connects the pure engine to the store: re-runs it (throttled) whenever the
@@ -31,6 +33,21 @@ export function startEngineBridge(store: BoardStoreApi): () => void {
     let s = store.getState();
     if (s.board.snapshot.ball.kind === 'travelling' && travelDone(s.board.snapshot, Date.now())) {
       s.dispatch({ type: 'BALL_ARRIVE' });
+      s = store.getState();
+      const { setup, snapshot } = s.board;
+      const end = snapshot.ball.kind === 'loose' ? goalAt(setup.pitch, snapshot.ball.pos) : null;
+      if (end) {
+        // The team attacking that end scored.
+        const scorer = setup.teams.find((t) => t.attacksDir === end) ?? setup.teams[0];
+        s.setUi({ goal: { teamId: scorer.id, at: now }, passFromId: null });
+        s = store.getState();
+      }
+    }
+    if (s.ui.goal && now - s.ui.goal.at >= GOAL_PARTY_MS) {
+      // Party over: restart with the ball on the centre spot (unless it was moved already).
+      const { setup, snapshot } = s.board;
+      s.setUi({ goal: null });
+      if (snapshot.ball.kind === 'loose' && goalAt(setup.pitch, snapshot.ball.pos)) s.dispatch({ type: 'MOVE_BALL', to: { x: 0, y: 0 }, snap: false });
       s = store.getState();
     }
 

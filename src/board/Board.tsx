@@ -6,10 +6,11 @@ import { useBoard } from '../store/boardStore';
 import { needsGhost } from '../store/glide';
 import { isExplained } from '../ui/visibility';
 import { Ball } from './Ball';
+import { Fireworks } from './Fireworks';
 import { Ghost } from './Ghost';
 import { Gestures, type BoardGeometry } from './gestures';
 import { Pitch } from './Pitch';
-import { ballDrawPos, ballRadius, hitRadius, playerRadius } from './sizes';
+import { ballDrawPos, ballHitRadius, ballRadius, hitRadius, playerRadius } from './sizes';
 import { Token } from './Token';
 import { project, rectToView, toView, viewTransform, type Orient, type Size } from './viewport';
 
@@ -188,7 +189,7 @@ export function Board() {
             vectorEffect="non-scaling-stroke"
           />
         )}
-        <Ball at={toView(ballDrawPos(snapshot, scale, now), orient)} r={br} hitR={hitRadius(br, scale)} state={snapshot.ball.kind} />
+        <Ball at={toView(ballDrawPos(snapshot, scale, now), orient)} r={br} hitR={ballHitRadius(scale)} state={snapshot.ball.kind} />
         {frameView && (
           <rect
             x={frameView.x}
@@ -202,6 +203,7 @@ export function Board() {
           />
         )}
       </svg>
+      <Fireworks />
       {frameMode && <div className="board-hint">Drag a box around the part you want to see</div>}
       {debug && (
         <div className="debug" data-testid="debug-overlay">

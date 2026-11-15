@@ -12,6 +12,8 @@ export default defineConfig({
     hasTouch: true,
     isMobile: true,
     trace: 'off',
+    // The first-run tutorial is switched off for every test except the ones about it.
+    storageState: { cookies: [], origins: [{ origin: 'http://localhost:4173', localStorage: [{ name: 'soccerboard.tutorial', value: 'off' }] }] },
   },
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   webServer: {
